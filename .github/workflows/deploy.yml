@@ -1,0 +1,43 @@
+name: Terraform-Ansible-Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Authenticate with Google Cloud
+        run: |
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > gcp-key.json
+          chmod 600 gcp-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
+          gcloud auth activate-service-account --key-file=$PWD/gcp-key.json
+          gcloud config set project $(jq -r '.project_id' gcp-key.json)
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Apply Terraform
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
+        run: terraform apply -var="google_credentials=${{ secrets.GOOGLE_CREDENTIALS }}" -auto-approve
+
+      - name: Get VM IP
+        run: |
+          echo "[web]" > inventory.ini
+          echo "vm-instance ansible_host=$(terraform output -json vm_external_ips | jq -r '.[0]') ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa" >> inventory.ini

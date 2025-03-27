@@ -1,0 +1,24 @@
+- name: Configure Server
+  hosts: all
+  become: yes
+  vars_files:
+    - config.yml
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+      when: packages is defined and packages | length > 0
+
+    - name: Start and enable services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop: "{{ services }}"
+      when: services is defined and services | length > 0

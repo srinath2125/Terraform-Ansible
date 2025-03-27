@@ -1,0 +1,7 @@
+packages:
+  - nginx
+  - git
+  - curl
+
+services:
+  - nginx
