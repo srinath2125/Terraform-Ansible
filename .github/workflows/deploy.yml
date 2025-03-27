@@ -32,10 +32,11 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Apply Terraform
+      - name: Apply Terraform Configuration
+        run: terraform apply -var="google_credentials=$GOOGLE_CREDENTIALS" -auto-approve
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
-        run: terraform apply -var="google_credentials=${{ secrets.GOOGLE_CREDENTIALS }}" -auto-approve
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+ 
 
       - name: Get VM IP
         run: |
