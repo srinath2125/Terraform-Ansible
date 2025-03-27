@@ -1,17 +1,18 @@
+variable "google_credentials" {
+  description = "Google Cloud credentials in JSON format"
+  type        = string
+  sensitive   = true
+}
+
 variable "project_id" {
   description = "Google Cloud Project ID"
   type        = string
 }
 
 variable "region" {
-  description = "Google Cloud Region"
+  description = "Deployment region"
   type        = string
-}
-
-variable "google_credentials" {
-  description = "Google Cloud credentials in JSON format"
-  type        = string
-  sensitive   = true
+  default     = "asia-south1"
 }
 
 variable "vm_instances" {
@@ -25,6 +26,6 @@ variable "vm_instances" {
 }
 
 variable "ssh_public_key" {
-  description = "Public SSH key for Ansible access"
+  description = "SSH public key for authentication"
   type        = string
 }
